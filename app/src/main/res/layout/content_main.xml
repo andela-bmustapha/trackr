@@ -13,15 +13,5 @@
     tools:showIn="@layout/activity_main"
     tools:context=".MainActivity">
 
-    <Button
-        android:text="Start Tracking"
-        android:drawableLeft="@android:drawable/ic_media_play"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/tracking_button"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
 
 </RelativeLayout>

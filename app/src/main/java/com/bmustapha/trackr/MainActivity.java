@@ -5,8 +5,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
+
+    private Button trackingButton;
+    final int sdk = android.os.Build.VERSION.SDK_INT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,5 +46,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void toggleTracking() {
+        if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            trackingButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.tracking_button_stop));
+        } else {
+            trackingButton.setBackground(getResources().getDrawable(R.drawable.tracking_button_stop));
+        }
+        trackingButton.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_media_pause, 0, 0, 0);
+        trackingButton.setText("Stop Tracking");
     }
 }
