@@ -8,14 +8,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bmustapha.trackr.R;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button trackingButton;
+    private Button stopTrackingButton;
+    private boolean isTracking = false;
+
     final int sdk = android.os.Build.VERSION.SDK_INT;
 
     @Override
@@ -37,6 +42,37 @@ public class MainActivity extends AppCompatActivity {
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/1942.ttf");
         TextView logoTextView = (TextView) findViewById(R.id.logo);
         logoTextView.setTypeface(face);
+
+        setUp();
+    }
+
+    private void setUp() {
+        trackingButton = (Button) findViewById(R.id.start_tracking_button);
+        Button historyButton = (Button) findViewById(R.id.history_button);
+        stopTrackingButton = (Button) findViewById(R.id.stop_tracking_button);
+
+        handleButtonsDisplay();
+
+        trackingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleTracking();
+            }
+        });
+
+        historyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showHistory();
+            }
+        });
+
+        stopTrackingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleTracking();
+            }
+        });
     }
 
     @Override
@@ -63,12 +99,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void toggleTracking() {
-        if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            trackingButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.tracking_button_stop));
+        handleButtonsDisplay();
+    }
+
+    private void handleButtonsDisplay() {
+        if (isTracking) {
+            isTracking = false;
+            trackingButton.setVisibility(View.GONE);
+            stopTrackingButton.setVisibility(View.VISIBLE);
         } else {
-            trackingButton.setBackground(getResources().getDrawable(R.drawable.tracking_button_stop));
+            isTracking = true;
+            trackingButton.setVisibility(View.VISIBLE);
+            stopTrackingButton.setVisibility(View.GONE);
         }
-        trackingButton.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_media_pause, 0, 0, 0);
-        trackingButton.setText("Stop Tracking");
+    }
+
+    private void showHistory() {
+        Toast.makeText(this, "History button clicked!", Toast.LENGTH_SHORT).show();
     }
 }

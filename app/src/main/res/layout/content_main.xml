@@ -34,7 +34,7 @@
         android:layout_weight="3">
 
         <Button
-            android:id="@+id/tracking_button"
+            android:id="@+id/start_tracking_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="32dp"
@@ -44,6 +44,21 @@
             android:drawableStart="@drawable/ic_location_searching_black_48dp"
             android:padding="20dp"
             android:text="@string/start_tracking"
+            android:textAllCaps="false"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/stop_tracking_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp"
+            android:background="@drawable/tracking_button_stop"
+            android:drawableLeft="@drawable/ic_location_disabled_white_48dp"
+            android:drawableStart="@drawable/ic_location_disabled_white_48dp"
+            android:padding="20dp"
+            android:text="@string/stop_tracking"
             android:textAllCaps="false"
             android:textSize="20sp"
             android:textStyle="bold"/>
