@@ -1,11 +1,13 @@
 package com.bmustapha.trackr;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,11 +21,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        try {
-            getSupportActionBar().setIcon(R.mipmap.ic_launcher);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/1942.ttf");
+        TextView logoTextView = (TextView) findViewById(R.id.logo);
+        logoTextView.setTypeface(face);
     }
 
     @Override
