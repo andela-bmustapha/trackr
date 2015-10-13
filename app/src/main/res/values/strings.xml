@@ -5,4 +5,5 @@
     <string name="tracking_button">Tracking Button</string>
     <string name="start_tracking">Start Tracking</string>
     <string name="view_history">View History</string>
+    <string name="title_activity_setting">Setting</string>
 </resources>

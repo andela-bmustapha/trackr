@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="Settings">
+
+        <EditTextPreference
+            android:dialogTitle="Minimum Time"
+            android:key="time"
+            android:summary="Enter minimum time in minutes"
+            android:defaultValue="5"
+            android:digits="0123456789"
+            android:title="Maximum standstill time" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

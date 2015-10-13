@@ -1,13 +1,17 @@
-package com.bmustapha.trackr;
+package com.bmustapha.trackr.activities;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.bmustapha.trackr.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,9 +21,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        try {
+            getSupportActionBar().setTitle("");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Typeface face = Typeface.createFromAsset(getAssets(), "fonts/1942.ttf");
         TextView logoTextView = (TextView) findViewById(R.id.logo);
@@ -42,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Intent settingsIntent = new Intent(this, Setting.class);
+            startActivity(settingsIntent);
         }
 
         return super.onOptionsItemSelected(item);
