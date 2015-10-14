@@ -1,6 +1,9 @@
 package com.bmustapha.trackr.activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -15,6 +18,7 @@ import android.widget.Toast;
 
 import com.bmustapha.trackr.R;
 import com.bmustapha.trackr.service.TrackrService;
+import com.bmustapha.trackr.utilities.Constants;
 
 public class TrackrMainActivity extends AppCompatActivity {
 
@@ -23,6 +27,7 @@ public class TrackrMainActivity extends AppCompatActivity {
     TrackrService trackrService = null;
 
     final int sdk = android.os.Build.VERSION.SDK_INT;
+    private boolean broadcastIsRegistered;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +52,9 @@ public class TrackrMainActivity extends AppCompatActivity {
         TextView logoTextView = (TextView) findViewById(R.id.logo);
         logoTextView.setTypeface(face);
 
+        registerReceiver(broadcastReceiver, new IntentFilter(Constants.BROADCAST_ACTION));
+        broadcastIsRegistered = true;
+
         setUp();
     }
 
@@ -61,6 +69,14 @@ public class TrackrMainActivity extends AppCompatActivity {
         trackingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!broadcastIsRegistered) {
+                    try {
+                        registerReceiver(broadcastReceiver, new IntentFilter(Constants.BROADCAST_ACTION));
+                        broadcastIsRegistered = true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 toggleTracking();
             }
         });
@@ -75,6 +91,14 @@ public class TrackrMainActivity extends AppCompatActivity {
         stopTrackingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (broadcastIsRegistered) {
+                    try {
+                        unregisterReceiver(broadcastReceiver);
+                        broadcastIsRegistered = false;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 toggleTracking();
             }
         });
@@ -101,6 +125,20 @@ public class TrackrMainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            handleBroadCast(intent);
+        }
+    };
+
+    private void handleBroadCast(Intent intent) {
+        boolean stopped = intent.getBooleanExtra("trackingStopped", false);
+        if (stopped) {
+            handleButtonsDisplay();
+        }
     }
 
     private void toggleTracking() {
