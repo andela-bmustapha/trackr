@@ -7,4 +7,7 @@
     <string name="view_history">View History</string>
     <string name="title_activity_setting">Setting</string>
     <string name="stop_tracking">Stop Tracking</string>
+    <string name="welcome_loading">Loading...</string>
+    <string name="notification_icon_description">Notification Icon</string>
+    <string name="notification_title">Trackr</string>
 </resources>

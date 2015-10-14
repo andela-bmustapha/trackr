@@ -7,7 +7,7 @@ import android.support.v7.widget.Toolbar;
 import com.bmustapha.trackr.R;
 import com.bmustapha.trackr.fragments.SettingsFragment;
 
-public class Setting extends Activity {
+public class TrackrSettingsActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

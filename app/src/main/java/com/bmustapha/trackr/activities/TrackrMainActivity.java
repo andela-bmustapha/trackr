@@ -14,12 +14,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bmustapha.trackr.R;
+import com.bmustapha.trackr.service.TrackrService;
 
-public class MainActivity extends AppCompatActivity {
+public class TrackrMainActivity extends AppCompatActivity {
 
     private Button trackingButton;
     private Button stopTrackingButton;
-    private boolean isTracking = false;
+    TrackrService trackrService = null;
 
     final int sdk = android.os.Build.VERSION.SDK_INT;
 
@@ -27,7 +28,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // set default preference the first time user installs application
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
+
+        trackrService = TrackrService.trackrService;
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -47,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUp() {
+
         trackingButton = (Button) findViewById(R.id.start_tracking_button);
         Button historyButton = (Button) findViewById(R.id.history_button);
         stopTrackingButton = (Button) findViewById(R.id.stop_tracking_button);
@@ -91,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent settingsIntent = new Intent(this, Setting.class);
+            Intent settingsIntent = new Intent(this, TrackrSettingsActivity.class);
             startActivity(settingsIntent);
         }
 
@@ -99,16 +104,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void toggleTracking() {
-        handleButtonsDisplay();
+        if (trackrService.isTracking()) {
+            trackrService.stopTracking();
+            handleButtonsDisplay();
+        } else {
+            trackrService.startTracking();
+            handleButtonsDisplay();
+        }
     }
 
     private void handleButtonsDisplay() {
-        if (isTracking) {
-            isTracking = false;
+        if (trackrService.isTracking()) {
             trackingButton.setVisibility(View.GONE);
             stopTrackingButton.setVisibility(View.VISIBLE);
         } else {
-            isTracking = true;
             trackingButton.setVisibility(View.VISIBLE);
             stopTrackingButton.setVisibility(View.GONE);
         }
