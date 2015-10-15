@@ -58,6 +58,27 @@ public class TrackrMainActivity extends AppCompatActivity {
         setUp();
     }
 
+    @Override
+    protected void onDestroy() {
+        try {
+            unregisterReceiver(broadcastReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        trackrService = TrackrService.trackrService;
+        if (trackrService == null) {
+            Intent splashIntent = new Intent(getApplicationContext(), SplashActivity.class);
+            startActivity(splashIntent);
+            finish();
+        }
+    }
+
     private void setUp() {
 
         trackingButton = (Button) findViewById(R.id.start_tracking_button);

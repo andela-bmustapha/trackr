@@ -7,19 +7,30 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.bmustapha.trackr.R;
 import com.bmustapha.trackr.broadcasts.NotificationBroadcast;
 import com.bmustapha.trackr.utilities.Constants;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 
 /**
  * Created by tunde on 10/13/15.
  */
-public class TrackrService extends Service {
+public class TrackrService extends Service implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     // assign service to its static self
     public static TrackrService trackrService;
@@ -27,7 +38,8 @@ public class TrackrService extends Service {
 
     private NotificationBroadcast notificationBroadcast;
     Intent serviceActionsIntent;
-
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
 
 
     @Override
@@ -46,12 +58,28 @@ public class TrackrService extends Service {
         notificationIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
         notificationIntentFilter.addAction(Constants.NOTIFY_CLOSE);
         registerReceiver(notificationBroadcast, notificationIntentFilter);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+        // Create the LocationRequest object
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(10 * 1000)        // 10 seconds, in milliseconds
+                .setFastestInterval(1000); // 1 second, in milliseconds
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.getAction().equals(Constants.START_FOREGROUND_ACTION)) {
-            sendNotification();
+        try {
+            if (intent.getAction().equals(Constants.START_FOREGROUND_ACTION)) {
+                sendNotification();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return START_STICKY;
     }
@@ -60,6 +88,7 @@ public class TrackrService extends Service {
     public void onDestroy() {
         trackrService = null;
         unregisterReceiver(notificationBroadcast);
+        disconnect();
         super.onDestroy();
     }
 
@@ -74,8 +103,8 @@ public class TrackrService extends Service {
             stopTracking();
         }
         try {
-            stopForeground(true);
             broadCast();
+            stopForeground(true);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -116,15 +145,63 @@ public class TrackrService extends Service {
     public void startTracking() {
         tracking = true;
         sendNotification();
+        connect();
+    }
+
+    private void connect() {
+        mGoogleApiClient.connect();
+    }
+
+    private void disconnect() {
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
+        }
     }
 
     public void stopTracking() {
         tracking = false;
         sendNotification();
+        disconnect();
     }
 
     public boolean isTracking() {
         return tracking;
     }
 
+    private void handleNewLocation(Location location) {
+        double currentLatitude = location.getLatitude();
+        double currentLongitude = location.getLongitude();
+        Toast.makeText(this, "Long: " + currentLongitude + "  Lat: " + currentLatitude, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,  this);
+        if (location != null) {
+            handleNewLocation(location);
+        }
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        handleNewLocation(location);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+    }
 }
