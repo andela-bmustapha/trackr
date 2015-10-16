@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.bmustapha.trackr.models.Location;
+
 import java.util.ArrayList;
 
 /**
@@ -27,15 +29,15 @@ public class LocationDb extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(DbConstants.LOCATIONS_TABLE_UPGRADE_STATEMENT);
     }
 
-    public boolean insertLocation(String date, String longitude, String latitude, String address) {
+    public boolean insertLocation(Location location) {
         boolean status = false;
         try {
             SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
             ContentValues contentValues = new ContentValues();
-            contentValues.put(DbConstants.LOCATIONS_TABLE_DATE_COLUMN, date);
-            contentValues.put(DbConstants.LOCATIONS_TABLE_LONG_COLUMN, longitude);
-            contentValues.put(DbConstants.LOCATIONS_TABLE_LAT_COLUMN, latitude);
-            contentValues.put(DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN, address);
+            contentValues.put(DbConstants.LOCATIONS_TABLE_DATE_COLUMN, location.getDate());
+            contentValues.put(DbConstants.LOCATIONS_TABLE_LONG_COLUMN, location.getLongitude());
+            contentValues.put(DbConstants.LOCATIONS_TABLE_LAT_COLUMN, location.getLatitude());
+            contentValues.put(DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN, location.getAddress());
             sqLiteDatabase.insert(DbConstants.LOCATIONS_TABLE, null, contentValues);
             status = true;
         } catch (Exception e) {
@@ -44,21 +46,61 @@ public class LocationDb extends SQLiteOpenHelper {
         return status;
     }
 
-    public ArrayList<PlayList> getAllPlayLists() {
-        ArrayList<PlayList> allPlayLists = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery("select * from playlist", null);
+    public ArrayList<Location> getAllLocations() {
+        ArrayList<Location> locations = new ArrayList<>();
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor res =  sqLiteDatabase.rawQuery("select * from " + DbConstants.LOCATIONS_TABLE, null);
         if (res.moveToFirst()) {
             while (!res.isAfterLast()) {
-                PlayList playList = new PlayList();
-                playList.setName(res.getString(res.getColumnIndex(PLAYLIST_COLUMN_NAME)));
-                playList.setDescription(res.getString(res.getColumnIndex(PLAYLIST_COLUMN_DESCRIPTION)));
-                playList.setDbId(res.getInt(res.getColumnIndex(PLAYLIST_COLUMN_ID)));
-                allPlayLists.add(playList);
+                Location location = new Location();
+                location.setDate(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_DATE_COLUMN)));
+                location.setLongitude(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_LONG_COLUMN)));
+                location.setLatitude(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_LAT_COLUMN)));
+                location.setAddress(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN)));
+                locations.add(location);
                 res.moveToNext();
             }
             res.close();
         }
-        return allPlayLists;
+        return locations;
+    }
+
+    public ArrayList<String> getUniqueLocationQueryArg(boolean flag) {
+        ArrayList<String> dates = new ArrayList<>();
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        String column = getDatabaseColumn(flag);
+        Cursor res =  sqLiteDatabase.rawQuery("select distinct " + column + " from " + DbConstants.LOCATIONS_TABLE, null);
+        if (res.moveToFirst()) {
+            while (!res.isAfterLast()) {
+                String date = res.getString(res.getColumnIndex(column));
+                dates.add(date);
+            }
+            res.close();
+        }
+        return dates;
+    }
+
+    public ArrayList<Location> getCustomLocations(String query, boolean flag) {
+        ArrayList<Location> locations = new ArrayList<>();
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        String column = getDatabaseColumn(flag);
+        Cursor res =  sqLiteDatabase.rawQuery("select * from " + DbConstants.LOCATIONS_TABLE + " where " + column + "="  + query, null);
+        if (res.moveToFirst()) {
+            while (!res.isAfterLast()) {
+                Location location = new Location();
+                location.setDate(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_DATE_COLUMN)));
+                location.setLongitude(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_LONG_COLUMN)));
+                location.setLatitude(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_LAT_COLUMN)));
+                location.setAddress(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN)));
+                locations.add(location);
+                res.moveToNext();
+            }
+            res.close();
+        }
+        return locations;
+    }
+
+    private String getDatabaseColumn(boolean flag) {
+        return (flag) ? DbConstants.LOCATIONS_TABLE_DATE_COLUMN : DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN;
     }
 }
