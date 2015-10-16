@@ -149,10 +149,12 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
     }
 
     private void connect() {
+        Toast.makeText(this, "In connect method", Toast.LENGTH_SHORT).show();
         mGoogleApiClient.connect();
     }
 
     private void disconnect() {
+        Toast.makeText(this, "In disconnect method", Toast.LENGTH_SHORT).show();
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
@@ -181,6 +183,8 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,  this);
         if (location != null) {
             handleNewLocation(location);
+        } else {
+            Toast.makeText(this, "Location not found", Toast.LENGTH_SHORT).show();
         }
     }
 
