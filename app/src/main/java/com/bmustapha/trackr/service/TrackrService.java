@@ -7,9 +7,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
@@ -17,7 +19,9 @@ import android.widget.Toast;
 
 import com.bmustapha.trackr.R;
 import com.bmustapha.trackr.broadcasts.NotificationBroadcast;
+import com.bmustapha.trackr.interfaces.TrackrTimerListener;
 import com.bmustapha.trackr.utilities.Constants;
+import com.bmustapha.trackr.utilities.TrackrTimer;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -25,6 +29,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by tunde on 10/13/15.
@@ -40,6 +46,10 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
     Intent serviceActionsIntent;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+
+    private TrackrTimer trackrTimer;
+    private Long limit;
+    private int interval = 3000;
 
 
     @Override
@@ -115,6 +125,38 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
         sendBroadcast(serviceActionsIntent);
     }
 
+    private void startTimer() {
+        // get limit from sharedPreference
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        limit = TimeUnit.MINUTES.toMillis(Long.valueOf(sharedPreferences.getString("time", "5")));
+        if (trackrTimer != null) {
+            trackrTimer.cancel();
+            start();
+        } else {
+            start();
+        }
+    }
+
+    private void stopTimer() {
+        if (trackrTimer != null) {
+            trackrTimer.cancel();
+        }
+    }
+
+    private void start() {
+        trackrTimer = (TrackrTimer) new TrackrTimer(limit, interval, new TrackrTimerListener() {
+            @Override
+            public void onInterval(long millisUntilFinish) {
+                Toast.makeText(getApplicationContext(), String.valueOf(millisUntilFinish), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void finished() {
+                Toast.makeText(getApplicationContext(), "Countdown over...", Toast.LENGTH_SHORT).show();
+            }
+        }).start();
+    }
+
     private void sendNotification() {
 
         String notificationService = Context.NOTIFICATION_SERVICE;
@@ -146,11 +188,18 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
         tracking = true;
         sendNotification();
         connect();
+        // start timer
+        startTimer();
+    }
+
+    public void updateTime() {
+        startTimer();
     }
 
     private void connect() {
         Toast.makeText(this, "In connect method", Toast.LENGTH_SHORT).show();
         mGoogleApiClient.connect();
+
     }
 
     private void disconnect() {
@@ -165,6 +214,8 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
         tracking = false;
         sendNotification();
         disconnect();
+        // stop timer
+        stopTimer();
     }
 
     public boolean isTracking() {

@@ -8,6 +8,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
 import com.bmustapha.trackr.R;
+import com.bmustapha.trackr.service.TrackrService;
 
 /**
  * Created by tunde on 10/13/15.
@@ -35,6 +36,10 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         if (pref instanceof EditTextPreference) {
             EditTextPreference etp = (EditTextPreference) pref;
             pref.setSummary("Maximum time: " + etp.getText() + " minutes");
+        }
+
+        if (TrackrService.trackrService != null) {
+            TrackrService.trackrService.updateTime();
         }
     }
 }
