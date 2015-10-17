@@ -10,4 +10,6 @@
     <string name="welcome_loading">Loading...</string>
     <string name="notification_icon_description">Notification Icon</string>
     <string name="notification_title">Trackr</string>
+    <string name="title_activity_history">History</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 </resources>

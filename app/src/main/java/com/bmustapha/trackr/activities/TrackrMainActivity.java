@@ -14,9 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bmustapha.trackr.R;
+import com.bmustapha.trackr.db.LocationDb;
 import com.bmustapha.trackr.service.TrackrService;
 import com.bmustapha.trackr.utilities.Constants;
 
@@ -29,6 +29,8 @@ public class TrackrMainActivity extends AppCompatActivity {
     final int sdk = android.os.Build.VERSION.SDK_INT;
     private boolean broadcastIsRegistered;
 
+    LocationDb locationDb = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +39,8 @@ public class TrackrMainActivity extends AppCompatActivity {
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
 
         trackrService = TrackrService.trackrService;
+
+        locationDb = new LocationDb(this);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -183,6 +187,7 @@ public class TrackrMainActivity extends AppCompatActivity {
     }
 
     private void showHistory() {
-        Toast.makeText(this, "History button clicked!", Toast.LENGTH_SHORT).show();
+        Intent historyIntent = new Intent(this, History.class);
+        startActivity(historyIntent);
     }
 }

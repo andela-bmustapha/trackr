@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.bmustapha.trackr.models.Location;
 
@@ -65,42 +66,51 @@ public class LocationDb extends SQLiteOpenHelper {
         return locations;
     }
 
-    public ArrayList<String> getUniqueLocationQueryArg(boolean flag) {
+    public ArrayList<String> getUniqueLocationQueryArg() {
         ArrayList<String> dates = new ArrayList<>();
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        String column = getDatabaseColumn(flag);
-        Cursor res =  sqLiteDatabase.rawQuery("select distinct " + column + " from " + DbConstants.LOCATIONS_TABLE, null);
-        if (res.moveToFirst()) {
-            while (!res.isAfterLast()) {
-                String date = res.getString(res.getColumnIndex(column));
-                dates.add(date);
+        try {
+            SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+            Cursor cursor = sqLiteDatabase.query(true, DbConstants.LOCATIONS_TABLE, new String[]{"date"}, null, null, "date", null, null, null);
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    String date = cursor.getString(cursor.getColumnIndex("date"));
+                    dates.add(date);
+                    cursor.moveToNext();
+                }
+                cursor.close();
             }
-            res.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return dates;
     }
 
-    public ArrayList<Location> getCustomLocations(String query, boolean flag) {
+    public ArrayList<Location> getDateLocations(String query) {
         ArrayList<Location> locations = new ArrayList<>();
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        String column = getDatabaseColumn(flag);
-        Cursor res =  sqLiteDatabase.rawQuery("select * from " + DbConstants.LOCATIONS_TABLE + " where " + column + "="  + query, null);
-        if (res.moveToFirst()) {
-            while (!res.isAfterLast()) {
+        Cursor cursor =  sqLiteDatabase.rawQuery("select * from locations where date=" + query, null);
+        Log.e("All Locations: ", String.valueOf(cursor.getCount()));
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
                 Location location = new Location();
-                location.setDate(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_DATE_COLUMN)));
-                location.setLongitude(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_LONG_COLUMN)));
-                location.setLatitude(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_LAT_COLUMN)));
-                location.setAddress(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN)));
+                location.setDate(cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_DATE_COLUMN)));
+                location.setLongitude(cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_LONG_COLUMN)));
+                location.setLatitude(cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_LAT_COLUMN)));
+                location.setAddress(cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN)));
                 locations.add(location);
-                res.moveToNext();
+                cursor.moveToNext();
             }
-            res.close();
+            cursor.close();
         }
         return locations;
     }
 
-    private String getDatabaseColumn(boolean flag) {
-        return (flag) ? DbConstants.LOCATIONS_TABLE_DATE_COLUMN : DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN;
+    public int getDateLocationCount(String query) {
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor cursor =  sqLiteDatabase.rawQuery("select * from locations where date=" + query, null);
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
     }
+
 }
