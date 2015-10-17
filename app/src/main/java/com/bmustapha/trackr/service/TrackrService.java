@@ -14,13 +14,16 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.bmustapha.trackr.R;
 import com.bmustapha.trackr.broadcasts.NotificationBroadcast;
+import com.bmustapha.trackr.db.LocationDb;
 import com.bmustapha.trackr.interfaces.TrackrTimerListener;
 import com.bmustapha.trackr.utilities.Constants;
+import com.bmustapha.trackr.utilities.LocationAddressHelper;
 import com.bmustapha.trackr.utilities.TrackrTimer;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -30,6 +33,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -49,7 +54,8 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
 
     private TrackrTimer trackrTimer;
     private Long limit;
-    private int interval = 3000;
+    private Location lastLocation = null;
+    private LocationDb locationDb;
 
 
     @Override
@@ -58,6 +64,8 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
         super.onCreate();
         // put the service instance in a static variable
         trackrService = this;
+
+        locationDb = new LocationDb(getApplicationContext());
 
         serviceActionsIntent = new Intent(Constants.BROADCAST_ACTION);
 
@@ -78,7 +86,7 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
         // Create the LocationRequest object
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(10 * 1000)        // 10 seconds, in milliseconds
+                .setInterval(3 * 1000)        // 20 seconds, in milliseconds
                 .setFastestInterval(1000); // 1 second, in milliseconds
     }
 
@@ -144,15 +152,28 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
     }
 
     private void start() {
+        int interval = 3000;
         trackrTimer = (TrackrTimer) new TrackrTimer(limit, interval, new TrackrTimerListener() {
             @Override
             public void onInterval(long millisUntilFinish) {
-                Toast.makeText(getApplicationContext(), String.valueOf(millisUntilFinish), Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getApplicationContext(), String.valueOf(millisUntilFinish), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void finished() {
-                Toast.makeText(getApplicationContext(), "Countdown over...", Toast.LENGTH_SHORT).show();
+                // log the current location to database, with date
+                String currentDate = new SimpleDateFormat("dd-MM-yyyy").format(Calendar.getInstance().getTime());
+                String address = LocationAddressHelper.getAddressFromLocation(getApplicationContext(), lastLocation.getLatitude(), lastLocation.getLongitude());
+                String longitude = String.valueOf(lastLocation.getLongitude());
+                String latitude = String.valueOf(lastLocation.getLatitude());
+
+                com.bmustapha.trackr.models.Location location = new com.bmustapha.trackr.models.Location(address, currentDate, latitude, longitude);
+                try {
+                    locationDb.insertLocation(location);
+                    Log.e("Saved Status", "Location saved!");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }).start();
     }
@@ -223,9 +244,19 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
     }
 
     private void handleNewLocation(Location location) {
-        double currentLatitude = location.getLatitude();
-        double currentLongitude = location.getLongitude();
-        Toast.makeText(this, "Long: " + currentLongitude + "  Lat: " + currentLatitude, Toast.LENGTH_SHORT).show();
+        // check if lastLocation is null
+        if (lastLocation == null) {
+            // set lastLocation to new Location
+            lastLocation = location;
+        } else {
+            // double distance = LocationConverter.getDistance(lastLocation.getLatitude(), lastLocation.getLongitude(), location.getLatitude(), location.getLongitude());
+            double distance = lastLocation.distanceTo(location);
+            Toast.makeText(this, String.valueOf(distance), Toast.LENGTH_SHORT).show();
+            if (distance >= 50) {
+                startTimer();
+            }
+            lastLocation = location;
+        }
     }
 
     @Override
