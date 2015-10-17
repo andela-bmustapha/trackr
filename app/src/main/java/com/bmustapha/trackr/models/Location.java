@@ -1,9 +1,11 @@
 package com.bmustapha.trackr.models;
 
+import java.io.Serializable;
+
 /**
  * Created by andela on 10/16/15.
  */
-public class Location {
+public class Location implements Serializable {
 
     private String date;
     private String longitude;
