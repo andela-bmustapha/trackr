@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.bmustapha.trackr.R;
 import com.bmustapha.trackr.db.LocationDb;
+import com.bmustapha.trackr.dialogs.HelpDialog;
 import com.bmustapha.trackr.service.TrackrService;
 import com.bmustapha.trackr.utilities.Constants;
 
@@ -158,7 +159,8 @@ public class TrackrMainActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void displayHelp() {
-        Toast.makeText(TrackrMainActivity.this, "Help coming...", Toast.LENGTH_SHORT).show();
+        View view = getLayoutInflater().inflate(R.layout.help, null);
+        new HelpDialog().showDialog(this, view);
     }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
