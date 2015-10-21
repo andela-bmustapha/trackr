@@ -25,7 +25,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
         String time = sharedPreferences.getString("time", "5");
         EditTextPreference preference = (EditTextPreference) findPreference("time");
-        preference.setSummary("Maximum time: " + time + " minutes");
+        String tag = (Double.parseDouble(time) > 1) ? " minutes" : " minute";
+        preference.setSummary("Maximum time: " + time +  tag);
 
     }
 
@@ -35,7 +36,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         Preference pref = findPreference(key);
         if (pref instanceof EditTextPreference) {
             EditTextPreference etp = (EditTextPreference) pref;
-            pref.setSummary("Maximum time: " + etp.getText() + " minutes");
+            String tag = (Double.parseDouble(etp.getText()) > 1) ? " minutes" : " minute";
+            pref.setSummary("Maximum time: " + etp.getText() + tag);
         }
 
         if (TrackrService.trackrService != null) {

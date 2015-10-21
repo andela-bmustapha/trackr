@@ -15,6 +15,7 @@ public class DbConstants {
     public static final String LOCATIONS_TABLE_LONG_COLUMN = "longitude";
     public static final String LOCATIONS_TABLE_LAT_COLUMN = "latitude";
     public static final String LOCATIONS_TABLE_ADDRESS_COLUMN = "address";
+    public static final String LOCATIONS_TABLE_TIME_COLUMN = "time";
 
     // define table creation statements
     public static final String LOCATIONS_TABLE_CREATE_STATEMENT = "create table " + LOCATIONS_TABLE + " (" +
@@ -22,7 +23,8 @@ public class DbConstants {
             LOCATIONS_TABLE_DATE_COLUMN + " text, " +
             LOCATIONS_TABLE_LONG_COLUMN + " text, " +
             LOCATIONS_TABLE_LAT_COLUMN + " text, " +
-            LOCATIONS_TABLE_ADDRESS_COLUMN + " text)";
+            LOCATIONS_TABLE_ADDRESS_COLUMN + " text, " +
+            LOCATIONS_TABLE_TIME_COLUMN + ")";
 
     public static final String LOCATIONS_TABLE_UPGRADE_STATEMENT = "DROP TABLE IF EXISTS " + LOCATIONS_TABLE;
 }

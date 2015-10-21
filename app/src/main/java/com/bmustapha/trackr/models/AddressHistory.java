@@ -7,6 +7,7 @@ public class AddressHistory {
 
     private String address;
     private int count;
+    String time;
 
     public AddressHistory(int count, String address) {
         this.count = count;
@@ -22,6 +23,10 @@ public class AddressHistory {
         this.address = address;
     }
 
+    public void setTime(String time) {
+        this.time = time;
+    }
+
     // getters
 
     public int getCount() {
@@ -30,5 +35,9 @@ public class AddressHistory {
 
     public String getAddress() {
         return address;
+    }
+
+    public String getTime() {
+        return time;
     }
 }

@@ -11,9 +11,18 @@ public class Location implements Serializable {
     private String longitude;
     private String latitude;
     private String address;
+    private String time;
 
     public Location() {
 
+    }
+
+    public Location(String address, String date, String latitude, String longitude, String time) {
+        this.address = address;
+        this.date = date;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.time = time;
     }
 
     public Location(String address, String date, String latitude, String longitude) {
@@ -40,6 +49,10 @@ public class Location implements Serializable {
         this.longitude = longitude;
     }
 
+    public void setTime(String time) {
+        this.time = time;
+    }
+
     // getters
     public String getAddress() {
         return address;
@@ -55,5 +68,9 @@ public class Location implements Serializable {
 
     public String getLongitude() {
         return longitude;
+    }
+
+    public String getTime() {
+        return time;
     }
 }

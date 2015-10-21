@@ -40,6 +40,7 @@ public class LocationDb extends SQLiteOpenHelper {
             contentValues.put(DbConstants.LOCATIONS_TABLE_LONG_COLUMN, location.getLongitude());
             contentValues.put(DbConstants.LOCATIONS_TABLE_LAT_COLUMN, location.getLatitude());
             contentValues.put(DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN, location.getAddress());
+            contentValues.put(DbConstants.LOCATIONS_TABLE_TIME_COLUMN, location.getTime());
             sqLiteDatabase.insert(DbConstants.LOCATIONS_TABLE, null, contentValues);
             status = true;
         } catch (Exception e) {
@@ -88,6 +89,13 @@ public class LocationDb extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             String cursorAddress = cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN));
             addressHistory = new AddressHistory(cursor.getCount(), cursorAddress);
+            Long time = (long) 0;
+            while (!cursor.isAfterLast()) {
+                String stringTime = cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_TIME_COLUMN));
+                time += Long.valueOf(stringTime);
+                cursor.moveToNext();
+            }
+            addressHistory.setTime(String.valueOf(time));
         }
         cursor.close();
         return addressHistory;

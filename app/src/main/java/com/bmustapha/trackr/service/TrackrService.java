@@ -14,7 +14,6 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -166,11 +165,12 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
                 String address = LocationAddressHelper.getAddressFromLocation(getApplicationContext(), lastLocation.getLatitude(), lastLocation.getLongitude());
                 String longitude = String.valueOf(lastLocation.getLongitude());
                 String latitude = String.valueOf(lastLocation.getLatitude());
-
-                com.bmustapha.trackr.models.Location location = new com.bmustapha.trackr.models.Location(address, currentDate, latitude, longitude);
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                Long maximumTime = TimeUnit.MINUTES.toMillis(Long.valueOf(sharedPreferences.getString("time", "5")));
+                String time = String.valueOf(maximumTime);
+                com.bmustapha.trackr.models.Location location = new com.bmustapha.trackr.models.Location(address, currentDate, latitude, longitude, time);
                 try {
                     locationDb.insertLocation(location);
-                    Log.e("Saved Status", "Location saved!");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

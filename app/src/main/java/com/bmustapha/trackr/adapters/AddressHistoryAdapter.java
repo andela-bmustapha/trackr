@@ -28,6 +28,7 @@ public class AddressHistoryAdapter extends BaseAdapter {
     public class ViewHolder {
         TextView address;
         TextView addressCount;
+        TextView timeSpent;
     }
 
     @Override
@@ -40,6 +41,7 @@ public class AddressHistoryAdapter extends BaseAdapter {
             holder = new ViewHolder();
             holder.address = (TextView) convertView.findViewById(R.id.address);
             holder.addressCount = (TextView) convertView.findViewById(R.id.address_count);
+            holder.timeSpent = (TextView) convertView.findViewById(R.id.time_spent);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -50,8 +52,37 @@ public class AddressHistoryAdapter extends BaseAdapter {
         String locationCount = (addressHistory.getCount() > 1) ? addressHistory.getCount() + " records" : addressHistory.getCount() + " record";
         holder.address.setText(addressHistory.getAddress());
         holder.addressCount.setText(locationCount);
+        String timeSpentLabel = "Time spent: " + getRelativeTime(Long.valueOf(addressHistory.getTime()));
+        holder.timeSpent.setText(timeSpentLabel);
 
         return convertView;
+    }
+
+    private String getRelativeTime(long time) {
+        final int SECOND = 1000;
+        final int MINUTE = 60 * SECOND;
+        final int HOUR = 60 * MINUTE;
+        final int DAY = 24 * HOUR;
+
+        StringBuilder text = new StringBuilder("");
+        if (time > DAY) {
+            text.append(time / DAY).append(" days ");
+            time %= DAY;
+        }
+        if (time > HOUR) {
+            text.append(time / HOUR).append(" hours ");
+            time %= HOUR;
+        }
+        if (time > MINUTE) {
+            text.append(time / MINUTE).append(" minutes ");
+            time %= MINUTE;
+        }
+        if (time > SECOND) {
+            text.append(time / SECOND).append(" seconds ");
+            time %= SECOND;
+        }
+        text.append(time).append(" ms");
+        return text.toString();
     }
 
     @Override
