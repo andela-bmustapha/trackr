@@ -14,13 +14,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bmustapha.trackr.R;
 import com.bmustapha.trackr.db.LocationDb;
 import com.bmustapha.trackr.service.TrackrService;
 import com.bmustapha.trackr.utilities.Constants;
 
-public class TrackrMainActivity extends AppCompatActivity {
+public class TrackrMainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button trackingButton;
     private Button stopTrackingButton;
@@ -87,46 +88,15 @@ public class TrackrMainActivity extends AppCompatActivity {
 
         trackingButton = (Button) findViewById(R.id.start_tracking_button);
         Button historyButton = (Button) findViewById(R.id.history_button);
+        Button howItWorksButton = (Button) findViewById(R.id.how_it_works_button);
         stopTrackingButton = (Button) findViewById(R.id.stop_tracking_button);
 
         handleButtonsDisplay();
 
-        trackingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!broadcastIsRegistered) {
-                    try {
-                        registerReceiver(broadcastReceiver, new IntentFilter(Constants.BROADCAST_ACTION));
-                        broadcastIsRegistered = true;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                toggleTracking();
-            }
-        });
-
-        historyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showHistory();
-            }
-        });
-
-        stopTrackingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (broadcastIsRegistered) {
-                    try {
-                        unregisterReceiver(broadcastReceiver);
-                        broadcastIsRegistered = false;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                toggleTracking();
-            }
-        });
+        trackingButton.setOnClickListener(this);
+        historyButton.setOnClickListener(this);
+        stopTrackingButton.setOnClickListener(this);
+        howItWorksButton.setOnClickListener(this);
     }
 
     @Override
@@ -138,9 +108,6 @@ public class TrackrMainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -150,6 +117,48 @@ public class TrackrMainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.start_tracking_button:
+                if (!broadcastIsRegistered) {
+                    try {
+                        registerReceiver(broadcastReceiver, new IntentFilter(Constants.BROADCAST_ACTION));
+                        broadcastIsRegistered = true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                toggleTracking();
+                break;
+            case R.id.history_button:
+                if (locationDb.getLocationHistoryCount() < 1) {
+                    Toast.makeText(TrackrMainActivity.this, R.string.history_error_message, Toast.LENGTH_SHORT).show();
+                } else {
+                    showHistory();
+                }
+                break;
+            case R.id.stop_tracking_button:
+                if (broadcastIsRegistered) {
+                    try {
+                        unregisterReceiver(broadcastReceiver);
+                        broadcastIsRegistered = false;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                toggleTracking();
+                break;
+            case R.id.how_it_works_button:
+                displayHelp();
+                break;
+        }
+    }
+
+    private void displayHelp() {
+        Toast.makeText(TrackrMainActivity.this, "Help coming...", Toast.LENGTH_SHORT).show();
     }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {

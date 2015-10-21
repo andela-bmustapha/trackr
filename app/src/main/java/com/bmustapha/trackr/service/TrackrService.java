@@ -249,7 +249,6 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
             // set lastLocation to new Location
             lastLocation = location;
         } else {
-            // double distance = LocationConverter.getDistance(lastLocation.getLatitude(), lastLocation.getLongitude(), location.getLatitude(), location.getLongitude());
             double distance = lastLocation.distanceTo(location);
             Toast.makeText(this, String.valueOf(distance), Toast.LENGTH_SHORT).show();
             if (distance >= 50) {

@@ -5,8 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
+import com.bmustapha.trackr.models.AddressHistory;
+import com.bmustapha.trackr.models.DateHistory;
 import com.bmustapha.trackr.models.Location;
 
 import java.util.ArrayList;
@@ -47,26 +48,55 @@ public class LocationDb extends SQLiteOpenHelper {
         return status;
     }
 
-    public ArrayList<Location> getAllLocations() {
-        ArrayList<Location> locations = new ArrayList<>();
+    public int getLocationHistoryCount() {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        Cursor res =  sqLiteDatabase.rawQuery("select * from " + DbConstants.LOCATIONS_TABLE, null);
-        if (res.moveToFirst()) {
-            while (!res.isAfterLast()) {
-                Location location = new Location();
-                location.setDate(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_DATE_COLUMN)));
-                location.setLongitude(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_LONG_COLUMN)));
-                location.setLatitude(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_LAT_COLUMN)));
-                location.setAddress(res.getString(res.getColumnIndex(DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN)));
-                locations.add(location);
-                res.moveToNext();
-            }
-            res.close();
-        }
-        return locations;
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from " + DbConstants.LOCATIONS_TABLE, null);
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
     }
 
-    public ArrayList<String> getUniqueLocationQueryArg() {
+    /*
+        Methods to help organize address related database queries
+     */
+
+    public ArrayList<String> getUniqueLocationAddressQueryArg() {
+        ArrayList<String> addresses = new ArrayList<>();
+        try {
+            SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+            Cursor cursor = sqLiteDatabase.query(true, DbConstants.LOCATIONS_TABLE, new String[]{"address"}, null, null, "address", null, null, null);
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    String address = cursor.getString(cursor.getColumnIndex("address"));
+                    if (address != null) {
+                        addresses.add(address);
+                    }
+                    cursor.moveToNext();
+                }
+                cursor.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return addresses;
+    }
+
+    public AddressHistory getAddressLocationsHistory(String address) {
+        AddressHistory addressHistory = null;
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from locations where TRIM(address) = '" + address.trim() + "'", null);
+        if (cursor.moveToFirst()) {
+            String cursorAddress = cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN));
+            addressHistory = new AddressHistory(cursor.getCount(), cursorAddress);
+        }
+        cursor.close();
+        return addressHistory;
+    }
+
+    /*
+        Methods to help organize date related database queries
+     */
+    public ArrayList<String> getUniqueLocationDateQueryArg() {
         ArrayList<String> dates = new ArrayList<>();
         try {
             SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
@@ -85,11 +115,22 @@ public class LocationDb extends SQLiteOpenHelper {
         return dates;
     }
 
-    public ArrayList<Location> getDateLocations(String query) {
+    public DateHistory getDateLocationsHistory(String date) {
+        DateHistory dateHistory = null;
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from locations where TRIM(date) = '" + date.trim() + "'", null);
+        if (cursor.moveToFirst()) {
+            String cursorDate = cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_DATE_COLUMN));
+            dateHistory = new DateHistory(cursor.getCount(), cursorDate);
+        }
+        cursor.close();
+        return dateHistory;
+    }
+
+    public ArrayList<Location> getDateLocations(String date) {
         ArrayList<Location> locations = new ArrayList<>();
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        Cursor cursor =  sqLiteDatabase.rawQuery("select * from locations where date=" + query, null);
-        Log.e("All Locations: ", String.valueOf(cursor.getCount()));
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from locations where TRIM(date) = '" + date.trim() + "'", null);
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
                 Location location = new Location();
@@ -104,13 +145,4 @@ public class LocationDb extends SQLiteOpenHelper {
         }
         return locations;
     }
-
-    public int getDateLocationCount(String query) {
-        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        Cursor cursor =  sqLiteDatabase.rawQuery("select * from locations where date=" + query, null);
-        int count = cursor.getCount();
-        cursor.close();
-        return count;
-    }
-
 }

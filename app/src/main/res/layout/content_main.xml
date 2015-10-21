@@ -83,7 +83,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/refresh_internet_button"
+        android:id="@+id/how_it_works_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"

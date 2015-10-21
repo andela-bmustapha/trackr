@@ -60,8 +60,8 @@ public class DateHistoryAdapter extends BaseAdapter {
     }
 
     @Override
-    public DateHistory getItem(int i) {
-        return dateHistories.get(i);
+    public DateHistory getItem(int position) {
+        return dateHistories.get(position);
     }
 
     @Override

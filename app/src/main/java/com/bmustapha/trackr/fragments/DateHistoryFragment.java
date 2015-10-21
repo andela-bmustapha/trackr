@@ -25,7 +25,6 @@ public class DateHistoryFragment extends Fragment {
 
     private ArrayList<DateHistory> dateHistories;
     private LocationDb locationDb;
-    private ArrayList<Location> locations;
 
     @Override
     public void onStart() {
@@ -47,11 +46,12 @@ public class DateHistoryFragment extends Fragment {
 
         dateHistoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 // open up map activity to display the locations of the day
                 // fetch data first and pass it with intent
+                DateHistory dateHistory = dateHistoryAdapter.getItem(position);
                 Intent mappedHistoryIntent = new Intent(getActivity(), HistoryMap.class);
-                mappedHistoryIntent.putExtra("HISTORY_LIST", getDateLocations(dateHistoryAdapter.getItem(i)));
+                mappedHistoryIntent.putExtra("HISTORY_LIST", getDateLocations(dateHistory.getDate()));
                 startActivity(mappedHistoryIntent);
             }
         });
@@ -59,28 +59,15 @@ public class DateHistoryFragment extends Fragment {
         return view;
     }
 
-    private ArrayList<Location> getDateLocations(DateHistory dateHistory) {
-        ArrayList<Location> dateLocations = new ArrayList<>();
-        for (Location location : locations) {
-            if (dateHistory.getDate().equals(location.getDate())) {
-                dateLocations.add(location);
-            }
-        }
-        return dateLocations;
+    private ArrayList<Location> getDateLocations(String date) {
+        return locationDb.getDateLocations(date);
     }
 
     private void getAllDateHistory() {
         dateHistories = new ArrayList<>();
-        ArrayList<String> uniqueDates = locationDb.getUniqueLocationQueryArg();
-        locations = locationDb.getAllLocations();
+        ArrayList<String> uniqueDates = locationDb.getUniqueLocationDateQueryArg();
         for (String date : uniqueDates) {
-            int count = 0;
-            for (Location location : locations) {
-                if (location.getDate().equals(date)) {
-                    count += 1;
-                }
-            }
-            dateHistories.add(new DateHistory(count, date));
+            dateHistories.add(locationDb.getDateLocationsHistory(date));
         }
     }
 }
