@@ -85,8 +85,8 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
         // Create the LocationRequest object
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(3 * 1000)        // 20 seconds, in milliseconds
-                .setFastestInterval(1000); // 1 second, in milliseconds
+                .setInterval(20 * 1000)
+                .setFastestInterval(3 * 1000);
     }
 
     @Override
@@ -155,7 +155,7 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
         trackrTimer = (TrackrTimer) new TrackrTimer(limit, interval, new TrackrTimerListener() {
             @Override
             public void onInterval(long millisUntilFinish) {
-                // Toast.makeText(getApplicationContext(), String.valueOf(millisUntilFinish), Toast.LENGTH_SHORT).show();
+
             }
 
             @Override
@@ -218,13 +218,13 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
     }
 
     private void connect() {
-        Toast.makeText(this, "In connect method", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Tracking Started...", Toast.LENGTH_SHORT).show();
         mGoogleApiClient.connect();
 
     }
 
     private void disconnect() {
-        Toast.makeText(this, "In disconnect method", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Tracking stopped...", Toast.LENGTH_SHORT).show();
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
@@ -250,8 +250,7 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
             lastLocation = location;
         } else {
             double distance = lastLocation.distanceTo(location);
-            Toast.makeText(this, String.valueOf(distance), Toast.LENGTH_SHORT).show();
-            if (distance >= 50) {
+            if (distance >= 30) {
                 startTimer();
             }
             lastLocation = location;
@@ -264,8 +263,6 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,  this);
         if (location != null) {
             handleNewLocation(location);
-        } else {
-            Toast.makeText(this, "Location not found", Toast.LENGTH_SHORT).show();
         }
     }
 

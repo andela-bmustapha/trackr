@@ -7,7 +7,6 @@
     <TextView
         android:padding="16dp"
         android:id="@+id/help_text"
-        android:text="This is a help text..."
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
