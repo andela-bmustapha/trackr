@@ -1,6 +1,6 @@
 # Trackr
 
-Trackr is a productivity management application that helps users keep track of location where they are most active without any effort from the user save a click of a button.
+Trackr is an android based productivity management application that helps users keep track of location where they are most active without any effort from the user save a click of a button.
 
 
 ### How to use
@@ -13,5 +13,10 @@ After maximum time elapses and no significant change in location is detected by 
 ### Libraries used to make this:
 
 Trackr uses the Google Play Services API to get user's current location.
+
+
+Get it on [PlayStore](https://play.google.com/store/apps/details?id=com.bmustapha.trackr)
+
+Author: [Mustapha Babatunde Oluwaleke](https://twitter.com/iAmToystars)
 
 
