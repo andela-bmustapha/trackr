@@ -101,6 +101,25 @@ public class LocationDb extends SQLiteOpenHelper {
         return addressHistory;
     }
 
+    public ArrayList<Location> getAddressLocation(String address) {
+        ArrayList<Location> locations = new ArrayList<>();
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from locations where TRIM(address) = '" + address.trim() + "'", null);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                Location location = new Location();
+                location.setDate(cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_DATE_COLUMN)));
+                location.setLongitude(cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_LONG_COLUMN)));
+                location.setLatitude(cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_LAT_COLUMN)));
+                location.setAddress(cursor.getString(cursor.getColumnIndex(DbConstants.LOCATIONS_TABLE_ADDRESS_COLUMN)));
+                locations.add(location);
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+        return locations;
+    }
+
     /*
         Methods to help organize date related database queries
      */
