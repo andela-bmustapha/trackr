@@ -8,7 +8,7 @@
     android:orientation="vertical"
     tools:context="com.bmustapha.trackr.activities.TrackrSettingsActivity">
 
-    <!--<include layout="@layout/setting_toolbar"/>-->
+    <include layout="@layout/setting_toolbar"/>
     <include layout="@layout/content_setting"/>
 
 </LinearLayout>
