@@ -60,6 +60,7 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
     public void onCreate() {
         //create the service
         super.onCreate();
+
         // put the service instance in a static variable
         trackrService = this;
 

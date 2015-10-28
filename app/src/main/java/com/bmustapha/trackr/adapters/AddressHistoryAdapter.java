@@ -47,7 +47,6 @@ public class AddressHistoryAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        //get song using position
         AddressHistory addressHistory = addressHistories.get(position);
         String locationCount = (addressHistory.getCount() > 1) ? addressHistory.getCount() + " records" : addressHistory.getCount() + " record";
         holder.address.setText(addressHistory.getAddress());

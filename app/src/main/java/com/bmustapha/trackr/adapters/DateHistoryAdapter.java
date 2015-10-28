@@ -45,7 +45,6 @@ public class DateHistoryAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        //get song using position
         DateHistory dateHistory = dateHistories.get(position);
         String locationCount = (dateHistory.getCount() > 1) ? dateHistory.getCount() + " locations" : dateHistory.getCount() + " location";
         holder.date.setText(dateHistory.getDate());
