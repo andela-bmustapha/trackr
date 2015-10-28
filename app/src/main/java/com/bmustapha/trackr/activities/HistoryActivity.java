@@ -16,10 +16,7 @@ import com.bmustapha.trackr.R;
 import com.bmustapha.trackr.fragments.DateHistoryFragment;
 import com.bmustapha.trackr.fragments.LocationHistoryFragment;
 
-public class History extends AppCompatActivity {
-
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
+public class HistoryActivity extends AppCompatActivity {
 
 
     @Override
@@ -35,10 +32,10 @@ public class History extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -75,11 +72,9 @@ public class History extends AppCompatActivity {
         finish();
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -87,8 +82,6 @@ public class History extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
                 case 0:
                     return new DateHistoryFragment();
@@ -102,7 +95,6 @@ public class History extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return 2;
         }
 
@@ -110,9 +102,9 @@ public class History extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "History by date";
+                    return getString(R.string.date_history_tab_label);
                 case 1:
-                    return "History by location";
+                    return getString(R.string.address_history_tab_label);
             }
             return null;
         }

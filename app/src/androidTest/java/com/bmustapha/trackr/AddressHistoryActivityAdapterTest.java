@@ -12,14 +12,14 @@ import java.util.ArrayList;
 /**
  * Created by andela on 10/22/15.
  */
-public class AddressHistoryAdapterTest extends AndroidTestCase {
+public class AddressHistoryActivityAdapterTest extends AndroidTestCase {
 
     private AddressHistoryAdapter addressHistoryAdapter;
 
     private AddressHistory firstHistory;
     private AddressHistory secondHistory;
 
-    public AddressHistoryAdapterTest() {
+    public AddressHistoryActivityAdapterTest() {
         super();
     }
 
@@ -49,7 +49,7 @@ public class AddressHistoryAdapterTest extends AndroidTestCase {
     }
 
     public void testGetCount() {
-        assertEquals("Address History count incorrect.", 2, addressHistoryAdapter.getCount());
+        assertEquals("Address HistoryActivity count incorrect.", 2, addressHistoryAdapter.getCount());
     }
 
 

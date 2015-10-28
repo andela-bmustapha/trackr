@@ -39,7 +39,7 @@ public class DateHistoryFragment extends Fragment {
 
         ListView dateHistoryListView = (ListView) view.findViewById(R.id.date_history_list_view);
 
-        getAllDateHistory();
+        setAllDateHistories();
 
         final DateHistoryAdapter dateHistoryAdapter = new DateHistoryAdapter(getActivity(), dateHistories);
         dateHistoryListView.setAdapter(dateHistoryAdapter);
@@ -63,7 +63,7 @@ public class DateHistoryFragment extends Fragment {
         return locationDb.getDateLocations(date);
     }
 
-    private void getAllDateHistory() {
+    private void setAllDateHistories() {
         dateHistories = new ArrayList<>();
         ArrayList<String> uniqueDates = locationDb.getUniqueLocationDateQueryArg();
         for (String date : uniqueDates) {

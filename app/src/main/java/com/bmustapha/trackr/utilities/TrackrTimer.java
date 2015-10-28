@@ -18,7 +18,7 @@ public class TrackrTimer extends CountDownTimer {
 
     @Override
     public void onTick(long millisUntilFinish) {
-        trackrTimerListener.onInterval(millisUntilFinish);
+
     }
 
     @Override

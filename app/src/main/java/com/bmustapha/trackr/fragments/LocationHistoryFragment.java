@@ -41,7 +41,7 @@ public class LocationHistoryFragment extends Fragment {
 
         ListView addressHistoryListView = (ListView) view.findViewById(R.id.date_history_list_view);
 
-        getAllAddressHistory();
+        setAllAddressHistories();
 
         final AddressHistoryAdapter addressHistoryAdapter = new AddressHistoryAdapter(getActivity(), addressHistories);
         addressHistoryListView.setAdapter(addressHistoryAdapter);
@@ -67,7 +67,7 @@ public class LocationHistoryFragment extends Fragment {
     }
 
 
-    private void getAllAddressHistory() {
+    private void setAllAddressHistories() {
         addressHistories = new ArrayList<>();
         ArrayList<String> uniqueAddresses = locationDb.getUniqueLocationAddressQueryArg();
         for (String address : uniqueAddresses) {

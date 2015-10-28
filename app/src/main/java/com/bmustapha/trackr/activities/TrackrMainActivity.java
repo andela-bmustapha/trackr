@@ -122,39 +122,36 @@ public class TrackrMainActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.start_tracking_button:
-                if (!broadcastIsRegistered) {
-                    try {
-                        registerReceiver(broadcastReceiver, new IntentFilter(Constants.BROADCAST_ACTION));
-                        broadcastIsRegistered = true;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                toggleTracking();
+                handleTrackingClick();
                 break;
             case R.id.history_button:
-                if (locationDb.getLocationHistoryCount() < 1) {
-                    Toast.makeText(TrackrMainActivity.this, R.string.history_error_message, Toast.LENGTH_SHORT).show();
-                } else {
-                    showHistory();
-                }
+                showHistory();
                 break;
             case R.id.stop_tracking_button:
-                if (broadcastIsRegistered) {
-                    try {
-                        unregisterReceiver(broadcastReceiver);
-                        broadcastIsRegistered = false;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                toggleTracking();
+                handleTrackingClick();
                 break;
             case R.id.how_it_works_button:
                 displayHelp();
                 break;
+        }
+    }
+
+    private void handleTrackingClick() {
+        try {
+            if (!broadcastIsRegistered) {
+                registerReceiver(broadcastReceiver, new IntentFilter(Constants.BROADCAST_ACTION));
+                broadcastIsRegistered = true;
+
+            } else {
+                unregisterReceiver(broadcastReceiver);
+                broadcastIsRegistered = false;
+
+            }
+            toggleTracking();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -180,11 +177,10 @@ public class TrackrMainActivity extends AppCompatActivity implements View.OnClic
     private void toggleTracking() {
         if (trackrService.isTracking()) {
             trackrService.stopTracking();
-            handleButtonsDisplay();
         } else {
             trackrService.startTracking();
-            handleButtonsDisplay();
         }
+        handleButtonsDisplay();
     }
 
     private void handleButtonsDisplay() {
@@ -198,7 +194,11 @@ public class TrackrMainActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void showHistory() {
-        Intent historyIntent = new Intent(this, History.class);
-        startActivity(historyIntent);
+        if (locationDb.getLocationHistoryCount() < 1) {
+            Toast.makeText(TrackrMainActivity.this, R.string.history_error_message, Toast.LENGTH_SHORT).show();
+        } else {
+            Intent historyIntent = new Intent(this, HistoryActivity.class);
+            startActivity(historyIntent);
+        }
     }
 }

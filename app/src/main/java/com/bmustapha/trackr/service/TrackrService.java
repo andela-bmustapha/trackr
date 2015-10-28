@@ -52,7 +52,6 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
     private LocationRequest mLocationRequest;
 
     private TrackrTimer trackrTimer;
-    private Long limit;
     private Location lastLocation = null;
     private LocationDb locationDb;
 
@@ -66,27 +65,9 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
 
         locationDb = new LocationDb(getApplicationContext());
 
-        serviceActionsIntent = new Intent(Constants.BROADCAST_ACTION);
+        setTrackingIntents();
 
-        // instance of custom broadcast receiver
-        notificationBroadcast = new NotificationBroadcast();
-
-        IntentFilter notificationIntentFilter = new IntentFilter();
-        notificationIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
-        notificationIntentFilter.addAction(Constants.NOTIFY_CLOSE);
-        registerReceiver(notificationBroadcast, notificationIntentFilter);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-
-        // Create the LocationRequest object
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(20 * 1000)
-                .setFastestInterval(3 * 1000);
+        setLocationListenerObjects();
     }
 
     @Override
@@ -115,6 +96,32 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
         return null;
     }
 
+    private void setTrackingIntents() {
+        serviceActionsIntent = new Intent(Constants.BROADCAST_ACTION);
+
+        // instance of custom broadcast receiver
+        notificationBroadcast = new NotificationBroadcast();
+
+        IntentFilter notificationIntentFilter = new IntentFilter();
+        notificationIntentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        notificationIntentFilter.addAction(Constants.NOTIFY_CLOSE);
+        registerReceiver(notificationBroadcast, notificationIntentFilter);
+    }
+
+    private void setLocationListenerObjects() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+        // Create the LocationRequest object
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(20 * 1000)
+                .setFastestInterval(3 * 1000);
+    }
+
     public void removeNotification() {
         if (tracking) {
             stopTracking();
@@ -133,15 +140,8 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
     }
 
     private void startTimer() {
-        // get limit from sharedPreference
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        limit = TimeUnit.MINUTES.toMillis(Long.valueOf(sharedPreferences.getString("time", "5")));
-        if (trackrTimer != null) {
-            trackrTimer.cancel();
-            start();
-        } else {
-            start();
-        }
+        stopTimer();
+        start();
     }
 
     private void stopTimer() {
@@ -150,13 +150,14 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
         }
     }
 
+    private long getTrackingLimit() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return TimeUnit.MINUTES.toMillis(Long.valueOf(sharedPreferences.getString("time", "5")));
+    }
+
     private void start() {
         int interval = 3000;
-        trackrTimer = (TrackrTimer) new TrackrTimer(limit, interval, new TrackrTimerListener() {
-            @Override
-            public void onInterval(long millisUntilFinish) {
-
-            }
+        trackrTimer = (TrackrTimer) new TrackrTimer(getTrackingLimit(), interval, new TrackrTimerListener() {
 
             @Override
             public void finished() {
@@ -191,11 +192,8 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
 
         notification.contentView = simpleContentView;
 
-        if (tracking) {
-            notification.contentView.setTextViewText(R.id.tracking_status, "Tracking active...");
-        } else {
-            notification.contentView.setTextViewText(R.id.tracking_status, "Tracking inactive.");
-        }
+        String notificationMessage = (tracking) ? "Tracking active..." : "Tracking inactive.";
+        notification.contentView.setTextViewText(R.id.tracking_status, notificationMessage);
 
         Intent closeIntent = new Intent(Constants.NOTIFY_CLOSE);
         PendingIntent closePendingIntent = PendingIntent.getBroadcast(this, 100, closeIntent, 0);
@@ -244,23 +242,17 @@ public class TrackrService extends Service implements OnMapReadyCallback, Google
     }
 
     private void handleNewLocation(Location location) {
-        // check if lastLocation is null
-        if (lastLocation == null) {
-            // set lastLocation to new Location
-            lastLocation = location;
-        } else {
-            double distance = lastLocation.distanceTo(location);
-            if (distance >= 30) {
-                startTimer();
-            }
-            lastLocation = location;
+        // check if lastLocation is not null
+        if ((lastLocation != null) && (lastLocation.distanceTo(location) >= 30)) {
+            startTimer();
         }
+        lastLocation = location;
     }
 
     @Override
     public void onConnected(Bundle bundle) {
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,  this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         if (location != null) {
             handleNewLocation(location);
         }

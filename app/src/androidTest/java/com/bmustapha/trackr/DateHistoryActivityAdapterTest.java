@@ -12,14 +12,14 @@ import java.util.ArrayList;
 /**
  * Created by tunde on 10/22/15.
  */
-public class DateHistoryAdapterTest extends AndroidTestCase {
+public class DateHistoryActivityAdapterTest extends AndroidTestCase {
 
     private DateHistoryAdapter dateHistoryAdapter;
 
     private DateHistory firstHistory;
     private DateHistory secondHistory;
 
-    public DateHistoryAdapterTest() {
+    public DateHistoryActivityAdapterTest() {
         super();
     }
 
@@ -47,7 +47,7 @@ public class DateHistoryAdapterTest extends AndroidTestCase {
     }
 
     public void testGetCount() {
-        assertEquals("Date History count incorrect.", 2, dateHistoryAdapter.getCount());
+        assertEquals("Date HistoryActivity count incorrect.", 2, dateHistoryAdapter.getCount());
     }
 
 

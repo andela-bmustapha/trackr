@@ -15,4 +15,6 @@
     <string name="title_activity_history_map">History</string>
     <string name="history_error_message">No history available</string>
     <string name="address_history_time_spent_label">Time spent: </string>
+    <string name="date_history_tab_label">History by date</string>
+    <string name="address_history_tab_label">History by location</string>
 </resources>

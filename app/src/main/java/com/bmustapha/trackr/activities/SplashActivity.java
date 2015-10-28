@@ -32,16 +32,18 @@ public class SplashActivity extends Activity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Intent trackrMainActivityIntent = new Intent(getApplicationContext(), TrackrMainActivity.class);
-                    startActivity(trackrMainActivityIntent);
-                    finish();
+                    goToMainActivity();
                 }
             }, 3000);
         } else {
             // service is already running, move at once
-            Intent trackrMainActivityIntent = new Intent(getApplicationContext(), TrackrMainActivity.class);
-            startActivity(trackrMainActivityIntent);
-            finish();
+            goToMainActivity();
         }
+    }
+
+    private void goToMainActivity() {
+        Intent trackrMainActivityIntent = new Intent(getApplicationContext(), TrackrMainActivity.class);
+        startActivity(trackrMainActivityIntent);
+        finish();
     }
 }
